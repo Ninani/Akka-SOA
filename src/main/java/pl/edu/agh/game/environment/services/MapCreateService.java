@@ -71,9 +71,7 @@ public class MapCreateService extends AbstractActor {
     private void initLocations() {
         for(int i=0; i<locations.length; i++) {
             for(int j=0; j<locations[i].length; j++) {
-                //System.out.println("Id: " + i + ", " + j + " i+j= " + (i+j));
                 locations[i][j] = new Location(getChance(), 10*i+j, Action.values()[new Random().nextInt(Action.values().length)]);
-                //System.out.println(locations[i][j].toString());
             }
         }
     }
