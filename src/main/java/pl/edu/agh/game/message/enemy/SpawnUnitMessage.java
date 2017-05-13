@@ -1,4 +1,4 @@
-package pl.edu.agh.game.message;
+package pl.edu.agh.game.message.enemy;
 
 import pl.edu.agh.game.model.enemies.EnemyType;
 

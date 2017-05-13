@@ -1,7 +1,7 @@
 package pl.edu.agh.game.enemy.services;
 
-import pl.edu.agh.game.message.SpawnUnitMessage;
-import pl.edu.agh.game.model.Enemy;
+import pl.edu.agh.game.message.enemy.SpawnUnitMessage;
+import pl.edu.agh.game.model.enemies.Enemy;
 import pl.edu.agh.game.model.enemies.orcs.Archer;
 import pl.edu.agh.game.model.enemies.orcs.Grunt;
 

@@ -1,7 +1,7 @@
 package pl.edu.agh.game.enemy.services;
 
 import akka.actor.AbstractActor;
-import pl.edu.agh.game.message.SpawnUnitMessage;
+import pl.edu.agh.game.message.enemy.SpawnUnitMessage;
 
 public abstract class Spawner extends AbstractActor{
 

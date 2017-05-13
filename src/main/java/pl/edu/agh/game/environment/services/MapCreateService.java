@@ -1,24 +1,12 @@
 package pl.edu.agh.game.environment.services;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-import pl.edu.agh.game.enemy.EnemyAgent;
-import pl.edu.agh.game.message.*;
-import pl.edu.agh.game.model.Enemy;
-import pl.edu.agh.game.model.map.Direction;
+import pl.edu.agh.game.message.environment.CreateMapMessage;
 import pl.edu.agh.game.model.map.Action;
 import pl.edu.agh.game.model.map.Location;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 public class MapCreateService extends AbstractActor {

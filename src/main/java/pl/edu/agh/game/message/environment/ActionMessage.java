@@ -1,13 +1,13 @@
-package pl.edu.agh.game.message;
+package pl.edu.agh.game.message.environment;
 
-public class DirectionsMessage {
+public class ActionMessage {
 
     private int position;
 
-    public DirectionsMessage() {
+    public ActionMessage() {
     }
 
-    public DirectionsMessage(int position) {
+    public ActionMessage(int position) {
         this.position = position;
     }
 

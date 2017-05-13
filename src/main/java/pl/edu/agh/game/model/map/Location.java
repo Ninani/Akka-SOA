@@ -1,6 +1,6 @@
 package pl.edu.agh.game.model.map;
 
-import pl.edu.agh.game.model.Enemy;
+import pl.edu.agh.game.model.enemies.Enemy;
 
 public class Location {
 
