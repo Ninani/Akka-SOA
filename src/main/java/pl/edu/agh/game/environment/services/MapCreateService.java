@@ -1,10 +1,12 @@
 package pl.edu.agh.game.environment.services;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.model.Enemy;
 import pl.edu.agh.game.model.map.Direction;
 import pl.edu.agh.game.model.map.Action;
@@ -17,6 +19,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -45,10 +48,12 @@ public class MapCreateService extends AbstractActor {
                     Location newLocation = getNewLocation(s.getCurrentPosition() ,s.getDirection());
                     //init all fields
                     if (newLocation.getAction().equals(Action.ENEMY)) {
+
                         if (newLocation.getEnemy() == null) {
                             //ask for new monster
+
                             Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                            Future<Object> future = Patterns.ask(getSender(), new NewMonsterMessage(), timeout);
+                            Future<Object> future = Patterns.ask(s.getEnemyAgent(), new NewMonsterMessage(), timeout);
                             Enemy result = (Enemy) Await.result(future, timeout.duration());
 
                             newLocation.setEnemy(result);
@@ -66,7 +71,9 @@ public class MapCreateService extends AbstractActor {
     private void initLocations() {
         for(int i=0; i<locations.length; i++) {
             for(int j=0; j<locations[i].length; j++) {
-                locations[i][j] = new Location(getChance(), i+j, Action.values()[new Random().nextInt(Action.values().length)]);
+                //System.out.println("Id: " + i + ", " + j + " i+j= " + (i+j));
+                locations[i][j] = new Location(getChance(), 10*i+j, Action.values()[new Random().nextInt(Action.values().length)]);
+                //System.out.println(locations[i][j].toString());
             }
         }
     }
@@ -86,20 +93,19 @@ public class MapCreateService extends AbstractActor {
         int i = location_id/10;
         int j = location_id%10;
 
-        Location location = locations[i][j];
         List<Direction> directions = new LinkedList<>();
 
-        if (locations[i-1][j] != null && !locations[i-1][j].isBlank()) {
-            directions.add(Direction.LEFT);
-        }
-        if (locations[i+1][j] != null && !locations[i+1][j].isBlank()) {
-            directions.add(Direction.RIGHT);
-        }
-        if (locations[i][j-1] != null && !locations[i][j-1].isBlank()) {
+        if (i>0 && !locations[i-1][j].isBlank()) {
             directions.add(Direction.UP);
         }
-        if (locations[i][j+1] != null && !locations[i][j+1].isBlank()) {
+        if (i<9 && !locations[i+1][j].isBlank()) {
             directions.add(Direction.DOWN);
+        }
+        if (j>0 && !locations[i][j-1].isBlank()) {
+            directions.add(Direction.LEFT);
+        }
+        if (j<9 && !locations[i][j+1].isBlank()) {
+            directions.add(Direction.RIGHT);
         }
 
         return directions;
@@ -111,13 +117,13 @@ public class MapCreateService extends AbstractActor {
         int i = currentPosition/10;
         int j = currentPosition%10;
 
-        if (direction.equals(Direction.LEFT)) {
+        if (direction.equals(Direction.UP)) {
             location = locations[i-1][j];
-        } else if (direction.equals(Direction.RIGHT)) {
-            location = locations[i+1][j];
-        } else if (direction.equals(Direction.UP)) {
-            location = locations[i][j+1];
         } else if (direction.equals(Direction.DOWN)) {
+            location = locations[i+1][j];
+        } else if (direction.equals(Direction.LEFT)) {
+            location = locations[i][j-1];
+        } else if (direction.equals(Direction.RIGHT)) {
             location = locations[i][j+1];
         }
 

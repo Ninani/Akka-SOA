@@ -27,12 +27,14 @@ import java.util.List;
 
 public class EnvironmentAgent extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-
-    private Props props = Props.create(MapCreateService.class, () -> new MapCreateService());
-    private ActorRef mapService = getContext().actorOf(props);
+    private Timeout timeout = new Timeout(Duration.create(5, "seconds"));
 
     private Props enemyProps = Props.create(EnemyAgent.class, () -> new EnemyAgent());
     private ActorRef enemyAgent = getContext().actorOf(enemyProps);
+
+
+    private Props props = Props.create(MapCreateService.class, () -> new MapCreateService());
+    private ActorRef mapService = getContext().actorOf(props);
 
     @Override
     public Receive createReceive() {
@@ -40,8 +42,7 @@ public class EnvironmentAgent extends AbstractActor {
                 .match(ActionMessage.class, s -> {
 
                     //ask mapService
-                    Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                    Future<Object> future = Patterns.ask(mapService, new ActionMessage(), timeout);
+                    Future<Object> future = Patterns.ask(mapService, s, timeout);
                     Action result = (Action) Await.result(future, timeout.duration());
 
                     //tell the sender the result
@@ -50,8 +51,7 @@ public class EnvironmentAgent extends AbstractActor {
                 .match(DirectionsMessage.class, s -> {
 
                     //ask mapService
-                    Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                    Future<Object> future = Patterns.ask(mapService, new DirectionsMessage(), timeout);
+                    Future<Object> future = Patterns.ask(mapService, s, timeout);
                     List<Direction> result = (List<Direction>) Await.result(future, timeout.duration());
 
                     //tell the sender the result
@@ -60,20 +60,9 @@ public class EnvironmentAgent extends AbstractActor {
                 .match(MoveMessage.class, s -> {
 
                     //ask mapservice to move to another location
-                    Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                    Future<Object> future = Patterns.ask(mapService, new MoveMessage(), timeout);
+                    s.setEnemyAgent(enemyAgent);
+                    Future<Object> future = Patterns.ask(mapService, s, timeout);
                     Location result = (Location) Await.result(future, timeout.duration());
-
-                    //return current Location with proper objects
-                    getSender().tell(result, getSelf());
-
-                })
-                .match(NewMonsterMessage.class, s -> {
-
-                    //ask mapservice to move to another location
-                    Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                    Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
-                    Enemy result = (Enemy) Await.result(future, timeout.duration());
 
                     //return current Location with proper objects
                     getSender().tell(result, getSelf());

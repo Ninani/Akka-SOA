@@ -46,4 +46,8 @@ public class Location {
     public void setEnemy(Enemy enemy) {
         this.enemy = enemy;
     }
+
+    public String toString() {
+        return "Location[" + id + "]: Blank: " + isBlank() + " Action: "+action + " Enemy: " + enemy;
+    }
 }
