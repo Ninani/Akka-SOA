@@ -48,6 +48,6 @@ public class Location {
     }
 
     public String toString() {
-        return "Location[" + id + "]: Blank: " + isBlank() + " Action: "+action + " Enemy: " + enemy;
+        return "Location[" + id + "]: Blank: " + isBlank() + " PlayerAction: "+action + " Enemy: " + enemy;
     }
 }
