@@ -31,9 +31,9 @@ public class PlayerActionAgent extends AbstractActor{
     }
 
     private void initServices() throws Exception {
-        createService(EnemyPlayerAction.class);
-        createService(EnvironmentPlayerAction.class);
-        createService(FightPlayerAction.class);
+//        createService(EnemyPlayerAction.class);
+//        createService(EnvironmentPlayerAction.class);
+//        createService(FightPlayerAction.class);
     }
 
     private void createService(Class clazz) throws Exception {
