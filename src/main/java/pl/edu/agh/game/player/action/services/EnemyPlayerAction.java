@@ -1,4 +1,11 @@
 package pl.edu.agh.game.player.action.services;
 
-public class EnemyPlayerAction extends PlayerAction {
+import akka.actor.AbstractActor;
+
+public class EnemyPlayerAction extends AbstractActor {
+
+    @Override
+    public Receive createReceive() {
+        return null;
+    }
 }

@@ -4,10 +4,10 @@ import pl.edu.agh.game.model.map.Direction;
 
 import java.io.Serializable;
 
-public class Turn implements Serializable {
+public class Move implements Serializable {
     private Direction direction;
 
-    public Turn(Direction direction) {
+    public Move(Direction direction) {
         this.direction = direction;
     }
 
