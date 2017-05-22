@@ -46,6 +46,9 @@ public class FightAgent extends AbstractActor{
         Future<Object> enemyFuture = Patterns.ask(fightService, message, timeout);
         try {
             FightMessage result = (FightMessage) Await.result(enemyFuture, timeout.duration());
+
+            logger.info("FightAgent[" + getSelf() + "] -- FightMessage --> " + getSender());
+
             getSender().tell(result, getSelf());
         } catch (Exception e) {
             logger.error("Future in FightAgent.class : " + e.getMessage());

@@ -57,6 +57,9 @@ public class EnemyAgent extends AbstractActor{
     }
 
     private void createNewMonster(NewMonsterMessage message){
+
+        logger.info("EnemyAgent[" + getSelf() + "] -- SpawnUnitMessage --> Spawner");
+
         SpawnUnitMessage spawnUnitMessage = new SpawnUnitMessage(getRandomEnemyType());
         Future<Object> enemyFuture = Patterns.ask(getRandomService(), spawnUnitMessage, timeout);
         try {

@@ -16,6 +16,9 @@ public class MapCreateService extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(CreateMapMessage.class, s -> {
+
+                    log.info("MapCreateService[" + getSelf() + "] -- Location[][] --> EnvironmentAgent");
+
                     getSender().tell(initLocations(s.getLocations(), s.getSize()), getSelf());
                 })
                 .matchAny(o -> log.info("received unknown message"))

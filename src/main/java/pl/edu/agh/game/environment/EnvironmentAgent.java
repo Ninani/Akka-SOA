@@ -41,14 +41,16 @@ public class EnvironmentAgent extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        mapCreateService = getContext().actorOf(Props.create(MapCreateService.class));
-        enemyAgent = getContext().actorOf(new RoundRobinPool(3).props(Props.create(EnemyAgent.class)));
+        mapCreateService = getContext().actorOf(Props.create(MapCreateService.class), "MapCreateService");
+        enemyAgent = getContext().actorOf(new RoundRobinPool(3).props(Props.create(EnemyAgent.class)), "enemyAgent");
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(CreateMapMessage.class, s -> {
+
+                    log.info("EnvironmentAgent[" + getSelf() + "] -- CreateMapMessage --> MapCreateService");
 
                     Future<Object> future = Patterns.ask(mapCreateService, new CreateMapMessage(locations, size), timeout);
                     locations = (Location[][]) Await.result(future, timeout.duration());
@@ -60,13 +62,20 @@ public class EnvironmentAgent extends AbstractActor {
                 })
                 .match(ActionMessage.class, s -> {
 
+                    log.info("EnvironmentAgent[" + getSelf() + "] -- Action --> " + getSender());
+
                     getSender().tell(getAction(s.getPosition()), getSelf());
                 })
                 .match(DirectionsMessage.class, s -> {
 
+                    log.info("EnvironmentAgent[" + getSelf() + "] -- List<Direction> --> " + getSender());
+
                     getSender().tell(getDirections(s.getPosition()), getSelf());
+
                 })
                 .match(MoveMessage.class, s -> {
+
+                    log.info("EnvironmentAgent[" + getSelf() + "] -- Location> --> " + getSender());
 
                     Location newLocation = getNewLocation(s.getCurrentPosition() ,s.getDirection());
                     getSender().tell(newLocation, getSelf());
@@ -128,6 +137,8 @@ public class EnvironmentAgent extends AbstractActor {
                 if (locations[i][j].getAction().equals(Action.ENEMY)) {
 
                     if (locations[i][j].getEnemy() == null) {
+
+                        log.info("EnvironmentAgent[" + getSelf() + "] -- NewMonsterMessage --> EnemyAgent");
 
                         Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
                         Enemy result = (Enemy) Await.result(future, timeout.duration());
