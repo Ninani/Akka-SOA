@@ -6,6 +6,8 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
+import akka.routing.RoundRobinPool;
+import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
 import pl.edu.agh.game.enemy.services.BeastSpawner;
 import pl.edu.agh.game.enemy.services.OrcSpawner;
@@ -39,8 +41,7 @@ public class EnemyAgent extends AbstractActor{
     }
 
     private void addRouteToList(List<ActorRef> spawners, Class clazz){
-        ActorRef actorRef = getContext().actorOf(Props.create(clazz));
-        getContext().watch(actorRef);
+        ActorRef actorRef = getContext().actorOf(new SmallestMailboxPool(2).props(Props.create(clazz)));
         spawners.add(actorRef);
     }
 
