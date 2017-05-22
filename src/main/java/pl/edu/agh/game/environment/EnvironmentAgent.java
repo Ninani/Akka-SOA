@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
+import akka.routing.*;
 import akka.util.Timeout;
 import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.environment.services.MapCreateService;
@@ -22,6 +23,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,8 +41,8 @@ public class EnvironmentAgent extends AbstractActor {
 
     @Override
     public void preStart() throws Exception {
-        enemyAgent = getContext().actorOf(Props.create(EnemyAgent.class));
         mapCreateService = getContext().actorOf(Props.create(MapCreateService.class));
+        enemyAgent = getContext().actorOf(new RoundRobinPool(3).props(Props.create(EnemyAgent.class)));
     }
 
     @Override
@@ -50,6 +52,9 @@ public class EnvironmentAgent extends AbstractActor {
 
                     Future<Object> future = Patterns.ask(mapCreateService, new CreateMapMessage(locations, size), timeout);
                     locations = (Location[][]) Await.result(future, timeout.duration());
+
+                    //init all enemies
+                    initEnemies();
 
                     getSender().tell("map created", getSelf());
                 })
@@ -64,19 +69,6 @@ public class EnvironmentAgent extends AbstractActor {
                 .match(MoveMessage.class, s -> {
 
                     Location newLocation = getNewLocation(s.getCurrentPosition() ,s.getDirection());
-
-                    if (newLocation.getAction().equals(Action.ENEMY)) {
-
-                        if (newLocation.getEnemy() == null) {
-
-                            Timeout timeout = new Timeout(Duration.create(5, "seconds"));
-                            Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
-                            Enemy result = (Enemy) Await.result(future, timeout.duration());
-
-                            newLocation.setEnemy(result);
-                        }
-                    }
-
                     getSender().tell(newLocation, getSelf());
                 })
                 .matchAny(o -> log.info("received unknown message"))
@@ -127,6 +119,24 @@ public class EnvironmentAgent extends AbstractActor {
         }
 
         return location;
+    }
+
+    private void initEnemies() throws Exception {
+
+        for(int i=0; i<locations.length; i++) {
+            for(int j=0; j<locations[i].length; j++) {
+                if (locations[i][j].getAction().equals(Action.ENEMY)) {
+
+                    if (locations[i][j].getEnemy() == null) {
+
+                        Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
+                        Enemy result = (Enemy) Await.result(future, timeout.duration());
+
+                        locations[i][j].setEnemy(result);
+                    }
+                }
+            }
+        }
     }
 }
 
