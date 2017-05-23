@@ -6,13 +6,15 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import pl.edu.agh.game.model.enemies.beasts.Bear;
-import pl.edu.agh.game.model.enemies.beasts.Beast;
 import pl.edu.agh.game.model.enemies.beasts.QuillBeast;
 import pl.edu.agh.game.model.map.Direction;
 import pl.edu.agh.game.player.action.PlayerActionAgent;
+import pl.edu.agh.game.player.action.messages.ActionMsg;
 import pl.edu.agh.game.player.action.messages.Fight;
 import pl.edu.agh.game.player.action.messages.Move;
+import pl.edu.agh.game.player.listener.interpreter.CommandInterpreter;
 import pl.edu.agh.game.player.listener.messages.Start;
+
 import java.util.Scanner;
 
 /**
@@ -24,10 +26,12 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     private ActorRef playerActionAgent;
+    private CommandInterpreter commandInterpreter;
 
     @Override
     public void preStart() throws Exception {
         playerActionAgent = getContext().actorOf(Props.create(PlayerActionAgent.class),"player-action");
+        commandInterpreter = new CommandInterpreter();
     }
 
     @Override
@@ -45,35 +49,21 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
     public void onRun() {
         log.info("Console is running: please write a command");
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("> ");
-            String input = scanner.nextLine();
-            if (input.length() == 0){
+
+        boolean processCommand = true;
+        while (processCommand) {
+            System.out.print("\n");
+            String inputLine = scanner.nextLine();
+            if (inputLine.length() == 0){
                 System.out.println("Please write a command!");
             } else {
-                switch (input) {        // TODO: 5/18/17 create a map with key commands
-                    case Commands.QUIT: onClose();
-                    break;
-                    case Commands.HELP: Commands.printHelp();
-                    break;
-                    case Commands.MOVE_DOWN: playerActionAgent.tell(new Move(Direction.DOWN), getSender());
-                    break;
-                    case Commands.MOVE_UP: playerActionAgent.tell(new Move(Direction.UP), getSender());
-                    break;
-                    case Commands.MOVE_LEFT: playerActionAgent.tell(new Move(Direction.LEFT), getSender());
-                    break;
-                    case Commands.MOVE_RIGHT: playerActionAgent.tell(new Move(Direction.RIGHT), getSender());
-                    break;
-                    case Commands.FIGHT_BEAR: playerActionAgent.tell(new Fight(new Bear()), getSender());
-                    break;
-                    case Commands.FIGHT_QUILL: playerActionAgent.tell(new Fight(new QuillBeast()), getSender());
-                    break;
-                    default: System.out.println("Wrong command");
-                        break;
+                ActionMsg msg = commandInterpreter.executeCommand(inputLine);
+                if (msg != null){
+                    playerActionAgent.tell(msg, getSender());
                 }
             }
-
         }
+        onClose();
     }
 
     public void onClose(){
@@ -81,4 +71,14 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
     }
 
 
+
+//                    case CommandInterpreter.FIGHT_BEAR: playerActionAgent.tell(new Fight(new Bear()), getSender());
+//                    break;
+//                    case CommandInterpreter.FIGHT_QUILL: playerActionAgent.tell(new Fight(new QuillBeast()), getSender());
+//                    break;
+//                    default: System.out.println("Wrong command");
+//                        break;
+//                }
 }
+
+

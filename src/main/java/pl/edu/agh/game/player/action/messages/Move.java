@@ -4,7 +4,7 @@ import pl.edu.agh.game.model.map.Direction;
 
 import java.io.Serializable;
 
-public class Move implements Serializable {
+public class Move extends ActionMsg {
     private Direction direction;
 
     public Move(Direction direction) {

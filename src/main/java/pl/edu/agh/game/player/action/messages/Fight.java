@@ -4,7 +4,7 @@ import pl.edu.agh.game.model.enemies.beasts.Beast;
 
 import java.io.Serializable;
 
-public class Fight implements Serializable{
+public class Fight extends ActionMsg {
     private Beast beast;
 
     public Fight(Beast beast) {
