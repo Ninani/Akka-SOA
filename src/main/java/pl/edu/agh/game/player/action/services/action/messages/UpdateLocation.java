@@ -1,8 +1,12 @@
 package pl.edu.agh.game.player.action.services.action.messages;
 
-import pl.edu.agh.game.player.action.services.action.model.Location;
+import pl.edu.agh.game.model.player.Location;
 
 import java.io.Serializable;
+
+/**
+ * UNUSED
+ */
 
 public class UpdateLocation implements Serializable {
     private Location location;

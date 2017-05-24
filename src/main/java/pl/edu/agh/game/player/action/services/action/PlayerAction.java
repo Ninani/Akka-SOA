@@ -3,11 +3,14 @@ package pl.edu.agh.game.player.action.services.action;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import pl.edu.agh.game.model.player.Player;
 import pl.edu.agh.game.player.action.services.action.messages.UpdateLifePoints;
 import pl.edu.agh.game.player.action.services.action.messages.UpdateLocation;
-import pl.edu.agh.game.player.action.services.action.messages.UpdateStrength;
-import pl.edu.agh.game.player.action.services.action.model.Location;
-import pl.edu.agh.game.player.action.services.action.model.Player;
+import pl.edu.agh.game.model.player.Location;
+
+/**
+ * UNUSED
+*/
 
 public class PlayerAction extends AbstractActor { // TODO: 5/24/17 add persistence
 
@@ -18,7 +21,7 @@ public class PlayerAction extends AbstractActor { // TODO: 5/24/17 add persisten
     @Override
     public void preStart() throws Exception {
         Location location = new Location(10, 10);
-        player = new Player("defaultName", location, 100, 100); // TODO: 5/24/17 enable setting up parameters before starting the game
+        player = new Player("defaultName", location, 100, 0); // TODO: 5/24/17 enable setting up parameters before starting the game
     }
 
     @Override
@@ -26,13 +29,15 @@ public class PlayerAction extends AbstractActor { // TODO: 5/24/17 add persisten
         return receiveBuilder()
                 .match(UpdateLocation.class, this::onUpdateLocation)
                 .match(UpdateLifePoints.class, this::onUpdateLifePoints)
-                .match(UpdateStrength.class, this::onUpdateStrength)
                 .build();
     }
 
     private void onUpdateLocation(UpdateLocation updateLocation){
-        log.info("UPDATE LOCATION");
+        log.info("before UPDATE LOCATION: " +
+                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
         player.setLocation((Location) updateLocation.getLocation());
+        log.info("after UPDATE LOCATION: " +
+                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
     }
 
     private void onUpdateLifePoints(UpdateLifePoints updateLifePoints){
@@ -40,9 +45,5 @@ public class PlayerAction extends AbstractActor { // TODO: 5/24/17 add persisten
         player.setLifePoints(updateLifePoints.getLifePoints());
     }
 
-    private void onUpdateStrength(UpdateStrength updateStrength){
-        log.info("UPDATE STRENGTH");
-        player.setStrength(updateStrength.getStrength());
-    }
 }
 

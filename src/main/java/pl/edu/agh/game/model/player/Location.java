@@ -1,4 +1,4 @@
-package pl.edu.agh.game.player.action.services.action.model;
+package pl.edu.agh.game.model.player;
 
 public class Location {
     private int x;

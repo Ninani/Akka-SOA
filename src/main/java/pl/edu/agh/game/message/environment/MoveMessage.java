@@ -4,12 +4,21 @@ package pl.edu.agh.game.message.environment;
 import akka.actor.ActorRef;
 import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.model.map.Direction;
+import pl.edu.agh.game.player.action.messages.Move;
 
 public class MoveMessage {
 
     private int currentPosition;
     private Direction direction;
     private ActorRef enemyAgent;
+
+    public MoveMessage(){
+    }
+
+    public MoveMessage(int currentPosition, Direction direction){
+        this.currentPosition = currentPosition;
+        this.direction = direction;
+    }
 
     public Direction getDirection() {
         return direction;

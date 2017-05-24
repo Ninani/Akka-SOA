@@ -2,6 +2,10 @@ package pl.edu.agh.game.player.action.services.action.messages;
 
 import java.io.Serializable;
 
+/**
+ * UNUSED
+ */
+
 public class UpdateStrength implements Serializable {
     private int strength;
 
