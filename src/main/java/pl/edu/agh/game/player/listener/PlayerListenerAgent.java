@@ -19,7 +19,7 @@ import java.util.Scanner;
 
 /**
  * CONSOLE COMMANDS INTERPRETER
- * Reads commands written by the user and translates it into messages sent to PlayerActionAgent
+ * Reads commands written by the user and translates it into messages sent to PlayerAction
  */
 public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rewrite it with FSM
 
@@ -69,16 +69,6 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
     public void onClose(){
         log.info("Closing console");
     }
-
-
-
-//                    case CommandInterpreter.FIGHT_BEAR: playerActionAgent.tell(new Fight(new Bear()), getSender());
-//                    break;
-//                    case CommandInterpreter.FIGHT_QUILL: playerActionAgent.tell(new Fight(new QuillBeast()), getSender());
-//                    break;
-//                    default: System.out.println("Wrong command");
-//                        break;
-//                }
 }
 
 

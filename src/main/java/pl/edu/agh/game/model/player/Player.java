@@ -2,20 +2,41 @@ package pl.edu.agh.game.model.player;
 
 public class Player {
 
-    private int healthPoints;
+    private String name;
+    private Location location;
+    private int lifePoints;
     private int damage;
 
     public Player(int health, int damage) {
-        this.healthPoints = health;
+        this.lifePoints = health;
         this.damage = damage;
     }
 
-    public int getHealthPoints() {
-        return healthPoints;
+    public Player(String name, Location location, int lifePoints, int damage){
+        this.name = name;
+        this.location = location;
+        this.lifePoints = lifePoints;
+        this.damage = damage;
     }
 
-    public void setHealthPoints(int healthPoints) {
-        this.healthPoints = healthPoints;
+    public String getName() {
+        return name;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public int getLifePoints() {
+        return lifePoints;
+    }
+
+    public void setLifePoints(int lifePoints) {
+        this.lifePoints = lifePoints;
     }
 
     public int getDamage() {
@@ -26,3 +47,4 @@ public class Player {
         this.damage = damage;
     }
 }
+

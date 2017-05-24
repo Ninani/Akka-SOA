@@ -16,17 +16,22 @@ public class Fight implements Command {
 
     }
 
+    private static final String WRONG_INPUT_FORMAT_MSG =
+            "WRONG COMMAND FORMAT: plaease enter the fight command in the following format: FIGHT WITH {BEAR/QUILL}";
+
     private static final String NO_ARGS_MSG =
-            "NO BEAST: please enter beast name after fight command (FIGHT {BEAR/QUILL})";
+            "NO BEAST: please enter beast name after fight command (FIGHT WITH {BEAR/QUILL})";
 
     @Override
     public ActionMsg execute(String[] args) {
-        if (args.length == 0) {
+        if (args.length == 0 ) {
+            System.out.println(WRONG_INPUT_FORMAT_MSG);
+        } else if (!args[0].equals("with")) {
+            System.out.println(WRONG_INPUT_FORMAT_MSG);
+        } else if (args[0].equals("with") && args.length == 1) {
             System.out.println(NO_ARGS_MSG);
-        } else {
-            if (messages.containsKey(args[0])){
-                return messages.get(args[0]);
-            }
+        } else if (messages.containsKey(args[1])) {
+            return messages.get(args[1]);
         }
         return null;
     }
