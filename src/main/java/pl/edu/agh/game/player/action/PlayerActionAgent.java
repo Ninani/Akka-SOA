@@ -14,13 +14,11 @@ import pl.edu.agh.game.message.fight.DifficultMessage;
 import pl.edu.agh.game.message.fight.FightMessage;
 import pl.edu.agh.game.model.enemies.Enemy;
 import pl.edu.agh.game.model.fight.FightType;
+import pl.edu.agh.game.model.map.Action;
+import pl.edu.agh.game.model.map.Location;
 import pl.edu.agh.game.model.player.Player;
-import pl.edu.agh.game.player.action.messages.ActionResponseMessage;
-import pl.edu.agh.game.player.action.messages.Fight;
-import pl.edu.agh.game.player.action.messages.Move;
-import pl.edu.agh.game.player.action.messages.Turn;
+import pl.edu.agh.game.player.action.messages.*;
 import pl.edu.agh.game.player.action.services.action.PlayerAction;
-import pl.edu.agh.game.model.player.Location;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -52,8 +50,7 @@ public class PlayerActionAgent extends AbstractActor{
 //        services
         playerAction = getContext().actorOf(Props.create(PlayerAction.class), "player_action");
 //        initialize model
-        Location location = new Location(10, 10);
-        player = new Player("defaultName", location, 100, 100); // TODO: 5/24/17 enable setting up parameters before starting the game
+        player = new Player("defaultName", 10, 100, 100); // TODO: 5/24/17 enable setting up parameters before starting the game
     }
 
     @Override
@@ -62,8 +59,14 @@ public class PlayerActionAgent extends AbstractActor{
                 .match(Turn.class, this::onTurn)
                 .match(Move.class, this::onMove)
                 .match(Fight.class, this::onFight)
+                .match(ShowActions.class, this::onShowActions)
                 .match(ActionResponseMessage.class, this::onActionResponseMessage)
                 .build();
+    }
+
+    private void onShowActions(ShowActions showActions) {
+        log.info("SHOW ACTIONS");
+
     }
 
     private void onTurn(Turn turn) {
@@ -75,18 +78,18 @@ public class PlayerActionAgent extends AbstractActor{
 
     private void onMove(Move move) throws Exception {
         log.info("MOVE " + move.getDirection());
-        log.info("before MOVE: " +
-                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
-        MoveMessage moveMessage = new MoveMessage(player.getLocation().getX(), move.getDirection());
-        Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
-        MoveMessage moveResult = (MoveMessage) Await.result(moveFuture, timeout.duration());
-        int x = moveResult.getCurrentPosition();
-        int y = moveResult.getCurrentPosition();
-//        UpdateLocation updateLocation = new UpdateLocation(new Location(x, y));
-//        playerAction.tell(updateLocation, getSelf());
-        player.setLocation(new Location(x, y));
-        log.info("after UPDATE LOCATION: " +
-                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
+//        log.info("before MOVE: " +
+//                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
+//        MoveMessage moveMessage = new MoveMessage(player.getLocation().getX(), move.getDirection());
+//        Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
+//        MoveMessage moveResult = (MoveMessage) Await.result(moveFuture, timeout.duration());
+//        int x = moveResult.getCurrentPosition();
+//        int y = moveResult.getCurrentPosition();
+////        UpdateLocation updateLocation = new UpdateLocation(new Location(x, y));
+////        playerAction.tell(updateLocation, getSelf());
+//        player.setLocation(new Location(x, y));
+//        log.info("after UPDATE LOCATION: " +
+//                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
     }
 
     private void onFight(Fight fight) throws Exception {

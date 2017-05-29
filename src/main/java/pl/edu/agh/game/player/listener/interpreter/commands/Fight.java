@@ -7,6 +7,9 @@ import pl.edu.agh.game.player.action.messages.ActionMsg;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * FIGHT WITH [BEAR|QUILL]
+ */
 public class Fight implements Command {
     
     private static final Map<String, pl.edu.agh.game.player.action.messages.ActionMsg> messages = new HashMap<>();
@@ -17,7 +20,7 @@ public class Fight implements Command {
     }
 
     private static final String WRONG_INPUT_FORMAT_MSG =
-            "WRONG COMMAND FORMAT: plaease enter the fight command in the following format: FIGHT WITH {BEAR/QUILL}";
+            "WRONG COMMAND FORMAT: please enter the fight command in the following format: FIGHT WITH {BEAR/QUILL}";
 
     private static final String NO_ARGS_MSG =
             "NO BEAST: please enter beast name after fight command (FIGHT WITH {BEAR/QUILL})";

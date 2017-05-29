@@ -5,6 +5,9 @@ import pl.edu.agh.game.player.action.messages.ActionMsg;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * MOVE [LEFT|RIGHT|UP|DOWN]
+ */
 public class Move implements Command {
 
     private static final Map<String, Direction> directions = new HashMap<>();
