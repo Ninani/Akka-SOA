@@ -2,7 +2,7 @@ package pl.edu.agh.game.model.player;
 
 public class Player {
 
-    private String name = "Zdzislaw";
+    private String name;
     private int positionOnMap;
     private int lifePoints;
     private int damage;
