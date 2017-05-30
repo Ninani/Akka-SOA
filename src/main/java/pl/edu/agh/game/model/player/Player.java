@@ -1,7 +1,5 @@
 package pl.edu.agh.game.model.player;
 
-import pl.edu.agh.game.model.map.Location;
-
 public class Player {
 
     private String name = "Zdzislaw";
@@ -14,10 +12,10 @@ public class Player {
         this.damage = damage;
     }
 
-    public Player(String name, int positionOnMap, int lifePoints, int damage){
-        this.name = name;
-        this.positionOnMap = positionOnMap;
-        this.lifePoints = lifePoints;
+    public Player(int damage){
+        this.name = "defaultName";
+        this.positionOnMap = 10;
+        this.lifePoints = 100;
         this.damage = damage;
     }
 

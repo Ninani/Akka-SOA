@@ -23,7 +23,6 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -132,18 +131,18 @@ public class EnvironmentAgent extends AbstractActor {
 
     private void initEnemies() throws Exception {
 
-        for(int i=0; i<locations.length; i++) {
-            for(int j=0; j<locations[i].length; j++) {
-                if (locations[i][j].getAction().equals(Action.ENEMY)) {
+        for (Location[] location : locations) {
+            for (Location aLocation : location) {
+                if (aLocation.getAction().equals(Action.ENEMY)) {
 
-                    if (locations[i][j].getEnemy() == null) {
+                    if (aLocation.getEnemy() == null) {
 
                         log.info("EnvironmentAgent -- NewMonsterMessage --> EnemyAgent");
 
                         Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
                         Enemy result = (Enemy) Await.result(future, timeout.duration());
 
-                        locations[i][j].setEnemy(result);
+                        aLocation.setEnemy(result);
                     }
                 }
             }

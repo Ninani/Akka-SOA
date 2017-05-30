@@ -11,8 +11,8 @@ public class Help implements Command {
             ">>>> HELP <<<<\n" +
             "* QUIT - quit the game\n" +
             "* MOVE [LEFT|RIGHT|UP|DOWN] - move in a given direction\n" +
-            "* FIGHT WITH [BEAR|QUILL] - fight with the beast\n" +
-            "* SHOW ACTIONS - show possible actions";
+            "* FIGHT WITH BEAST - fight with the beast\n" +
+            "* SHOW [ACTIONS|DIRECTIONS] - show possible actions/directions";
 
     @Override
     public ActionMsg execute(String[] args) {

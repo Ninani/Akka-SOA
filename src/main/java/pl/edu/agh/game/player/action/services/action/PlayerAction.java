@@ -12,13 +12,13 @@ import pl.edu.agh.game.player.action.services.action.messages.UpdateLifePoints;
 
 public class PlayerAction extends AbstractActor { // TODO: 5/24/17 add persistence
 
-    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     private Player player;
 
     @Override
     public void preStart() throws Exception {
-        player = new Player("defaultName", 10, 100, 0); // TODO: 5/24/17 enable setting up parameters before starting the game
+        player = new Player(0); // TODO: 5/24/17 enable setting up parameters before starting the game
     }
 
     @Override

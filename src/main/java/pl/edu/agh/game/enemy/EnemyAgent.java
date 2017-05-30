@@ -6,7 +6,6 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.pattern.Patterns;
-import akka.routing.RoundRobinPool;
 import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
 import pl.edu.agh.game.enemy.services.BeastSpawner;
