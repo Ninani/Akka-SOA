@@ -21,7 +21,7 @@ public class BeastSpawner extends Spawner {
                 enemy = new QuillBeast();
                 break;
         }
-        log.info("BeastSpawner[" + getSelf() + "] -- Beast --> " + getSender());
+        log.info("BeastSpawner -- Beast --> " + getSender());
 
         getSender().tell(enemy, getSelf());
     }

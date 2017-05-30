@@ -18,7 +18,7 @@ public abstract class FightService extends AbstractActor{
             player.setLifePoints(player.getLifePoints() - (int)(enemy.getDamage() * enemyDamageChange));
             enemy.setHealthPoints(enemy.getHealthPoints() - (int)(player.getDamage() * playerDamageChange));
         }
-        log.info("FightService[" + getSelf() + "] -- FightMessage --> " + getSender());
+        log.info("FightService -- FightMessage --> " + getSender());
 
         getSender().tell(new FightMessage(player, enemy), getSelf());
     }

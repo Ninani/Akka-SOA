@@ -47,7 +47,7 @@ public class FightAgent extends AbstractActor{
         try {
             FightMessage result = (FightMessage) Await.result(enemyFuture, timeout.duration());
 
-            logger.info("FightAgent[" + getSelf() + "] -- FightMessage --> " + getSender());
+            logger.info("FightAgent -- FightMessage --> " + getSender());
 
             getSender().tell(result, getSelf());
         } catch (Exception e) {

@@ -22,7 +22,7 @@ public class OrcSpawner extends Spawner {
                 break;
         }
 
-        log.info("OrcSpawner[" + getSelf() + "] -- Orc --> " + getSender());
+        log.info("OrcSpawner -- Orc --> " + getSender());
 
         getSender().tell(enemy, getSelf());
     }

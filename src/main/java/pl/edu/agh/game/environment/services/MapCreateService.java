@@ -17,7 +17,7 @@ public class MapCreateService extends AbstractActor {
         return receiveBuilder()
                 .match(CreateMapMessage.class, s -> {
 
-                    log.info("MapCreateService[" + getSelf() + "] -- Location[][] --> EnvironmentAgent");
+                    log.info("MapCreateService -- Location[][] --> EnvironmentAgent");
 
                     getSender().tell(initLocations(s.getLocations(), s.getSize()), getSelf());
                 })
