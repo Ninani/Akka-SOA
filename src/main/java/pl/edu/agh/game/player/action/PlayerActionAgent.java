@@ -10,17 +10,23 @@ import pl.edu.agh.game.environment.EnvironmentAgent;
 import pl.edu.agh.game.fight.FightAgent;
 import pl.edu.agh.game.message.enemy.NewMonsterMessage;
 import pl.edu.agh.game.message.environment.ActionMessage;
+import pl.edu.agh.game.message.environment.CreateMapMessage;
 import pl.edu.agh.game.message.environment.DirectionsMessage;
 import pl.edu.agh.game.message.environment.MoveMessage;
 import pl.edu.agh.game.message.fight.DifficultMessage;
 import pl.edu.agh.game.message.fight.FightMessage;
 import pl.edu.agh.game.model.enemies.Enemy;
 import pl.edu.agh.game.model.fight.FightType;
+import pl.edu.agh.game.model.map.Action;
+import pl.edu.agh.game.model.map.Direction;
+import pl.edu.agh.game.model.map.Location;
 import pl.edu.agh.game.model.player.Player;
 import pl.edu.agh.game.player.action.messages.*;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.util.List;
 
 
 /**
@@ -49,6 +55,8 @@ public class PlayerActionAgent extends AbstractActor{
         fightAgent = getContext().actorOf(Props.create(FightAgent.class), "fight");
 //        initialize model
         player = new Player(100);
+
+        environmentAgent.tell(new CreateMapMessage(), getSelf());
     }
 
     @Override
@@ -66,19 +74,19 @@ public class PlayerActionAgent extends AbstractActor{
         log.info("SHOW DIRECTIONS");
         DirectionsMessage directionsMessage = new DirectionsMessage(player.getLocation());
         Future<Object> directionsFuture = Patterns.ask(environmentAgent, directionsMessage, timeout);
-        DirectionsMessage result = (DirectionsMessage) Await.result(directionsFuture, timeout.duration());
+        List<Direction> result = (List<Direction>) Await.result(directionsFuture, timeout.duration());
         // TODO: 5/30/17 how get possible directions?
         // TODO: 5/30/17 investigate why EnvironmentAgent is blocked
-        log.info("POSSIBLE DIRECTIONS: ");
+        log.info("POSSIBLE DIRECTIONS: " + result);
     }
 
     private void onShowActions(ShowActions showActions) throws Exception {
         log.info("SHOW ACTIONS");
         ActionMessage actionMessage = new ActionMessage(player.getLocation());
         Future<Object> actionsFuture = Patterns.ask(environmentAgent, actionMessage, timeout);
-        ActionMessage result = (ActionMessage) Await.result(actionsFuture, timeout.duration());
+        Action result = (Action) Await.result(actionsFuture, timeout.duration());
         // TODO: 5/30/17 how get possible actions?
-        log.info("POSSIBLE ACTIONS: ");
+        log.info("POSSIBLE ACTIONS: " + result);
     }
 
     private void onMove(Move move) throws Exception {
@@ -86,9 +94,9 @@ public class PlayerActionAgent extends AbstractActor{
         log.info("before MOVE: position = "+player.getLocation());
         MoveMessage moveMessage = new MoveMessage(player.getLocation(), move.getDirection());
         Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
-        MoveMessage moveResult = (MoveMessage) Await.result(moveFuture, timeout.duration());
+        Location moveResult = (Location) Await.result(moveFuture, timeout.duration());
         // TODO: 5/30/17 environment agent is blocked!
-        player.setLocation(moveResult.getCurrentPosition());
+        player.setLocation(moveResult.getId());
         log.info("after MOVE: position = "+player.getLocation());
     }
 
@@ -96,6 +104,7 @@ public class PlayerActionAgent extends AbstractActor{
         log.info("FIGHT with beast");
         log.info("before FIGHT: lifePoints="+player.getLifePoints());
         fightAgent.tell(new DifficultMessage(FightType.HARD), getSelf()); // TODO: 5/30/17 difficulty is hardcoded!
+        //TODO use enemy from current Location - Location.getEnemy();
         Future<Object> enemyFuture = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
         Enemy result = (Enemy) Await.result(enemyFuture, timeout.duration());
         System.out.println(result.getHealthPoints() + " " + result.getDamage());
