@@ -3,7 +3,7 @@ package pl.edu.agh.game.model.player;
 public class Player {
 
     private String name;
-    private Location location;
+    private int locationId;
     private int lifePoints;
     private int damage;
 
@@ -12,23 +12,27 @@ public class Player {
         this.damage = damage;
     }
 
-    public Player(String name, Location location, int lifePoints, int damage){
-        this.name = name;
-        this.location = location;
-        this.lifePoints = lifePoints;
+    public Player(int damage){
+        this.name = "defaultName";
+        this.locationId= 10;
+        this.lifePoints = 100;
         this.damage = damage;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public Location getLocation() {
-        return location;
+    public int getLocationId() {
+        return locationId;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLocationId(int locationId) {
+        this.locationId = locationId;
     }
 
     public int getLifePoints() {

@@ -5,13 +5,8 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import pl.edu.agh.game.model.enemies.beasts.Bear;
-import pl.edu.agh.game.model.enemies.beasts.QuillBeast;
-import pl.edu.agh.game.model.map.Direction;
 import pl.edu.agh.game.player.action.PlayerActionAgent;
 import pl.edu.agh.game.player.action.messages.ActionMsg;
-import pl.edu.agh.game.player.action.messages.Fight;
-import pl.edu.agh.game.player.action.messages.Move;
 import pl.edu.agh.game.player.listener.interpreter.CommandInterpreter;
 import pl.edu.agh.game.player.listener.messages.Start;
 
@@ -23,7 +18,7 @@ import java.util.Scanner;
  */
 public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rewrite it with FSM
 
-    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     private ActorRef playerActionAgent;
     private CommandInterpreter commandInterpreter;
@@ -41,12 +36,12 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
                 .build();
     }
 
-    public void onStart(Start start) {
+    private void onStart(Start start) {
         log.info("Starting console");
         onRun();
     }
 
-    public void onRun() {
+    private void onRun() {
         log.info("Console is running: please write a command");
         Scanner scanner = new Scanner(System.in);
 
@@ -66,7 +61,7 @@ public class PlayerListenerAgent extends AbstractActor {    // TODO: 5/18/17 rew
         onClose();
     }
 
-    public void onClose(){
+    private void onClose(){
         log.info("Closing console");
     }
 }

@@ -9,27 +9,28 @@ import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.environment.EnvironmentAgent;
 import pl.edu.agh.game.fight.FightAgent;
 import pl.edu.agh.game.message.enemy.NewMonsterMessage;
-import pl.edu.agh.game.message.environment.MoveMessage;
+import pl.edu.agh.game.message.environment.*;
 import pl.edu.agh.game.message.fight.DifficultMessage;
 import pl.edu.agh.game.message.fight.FightMessage;
 import pl.edu.agh.game.model.enemies.Enemy;
 import pl.edu.agh.game.model.fight.FightType;
+import pl.edu.agh.game.model.map.Action;
+import pl.edu.agh.game.model.map.Direction;
+import pl.edu.agh.game.model.map.Location;
 import pl.edu.agh.game.model.player.Player;
-import pl.edu.agh.game.player.action.messages.ActionResponseMessage;
-import pl.edu.agh.game.player.action.messages.Fight;
-import pl.edu.agh.game.player.action.messages.Move;
-import pl.edu.agh.game.player.action.messages.Turn;
-import pl.edu.agh.game.player.action.services.action.PlayerAction;
-import pl.edu.agh.game.model.player.Location;
+import pl.edu.agh.game.player.action.messages.*;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.util.List;
+
 
 /**
  * MASTER PLAYER AGENT
  * Distributes messages to appropriate agents(services).
  */
-public class PlayerActionAgent extends AbstractActor{
+public class PlayerActionAgent extends AbstractActor{ // TODO: 5/30/17 send responses to PlayerListenerAgent???
 
     private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     private Timeout timeout = new Timeout(Duration.create(1, "seconds"));
@@ -49,63 +50,72 @@ public class PlayerActionAgent extends AbstractActor{
         environmentAgent = getContext().actorOf(Props.create(EnvironmentAgent.class), "environment");
         enemyAgent = getContext().actorOf(Props.create(EnemyAgent.class), "enemy");
         fightAgent = getContext().actorOf(Props.create(FightAgent.class), "fight");
-//        services
-        playerAction = getContext().actorOf(Props.create(PlayerAction.class), "player_action");
 //        initialize model
-        Location location = new Location(10, 10);
-        player = new Player("defaultName", location, 100, 100); // TODO: 5/24/17 enable setting up parameters before starting the game
+        player = new Player(100);
+
+        environmentAgent.tell(new CreateMapMessage(), getSelf());
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Turn.class, this::onTurn)
+                .match(ShowDirections.class, this::onShowDirections)
+                .match(ShowActions.class, this::onShowActions)
                 .match(Move.class, this::onMove)
                 .match(Fight.class, this::onFight)
                 .match(ActionResponseMessage.class, this::onActionResponseMessage)
                 .build();
     }
 
-    private void onTurn(Turn turn) {
-        log.info("Turn " + turn.getDirection());
-        MoveMessage moveMessage = new MoveMessage();
-        moveMessage.setDirection(turn.getDirection());
-        environmentAgent.tell(moveMessage, getSelf());
+    private void onShowDirections(ShowDirections showDirections) throws Exception {
+        log.info("SHOW DIRECTIONS");
+        DirectionsMessage directionsMessage = new DirectionsMessage(player.getLocationId());
+        Future<Object> directionsFuture = Patterns.ask(environmentAgent, directionsMessage, timeout);
+        List<Direction> result = (List<Direction>) Await.result(directionsFuture, timeout.duration());
+        log.info("POSSIBLE DIRECTIONS: " + result);
+    }
+
+    private void onShowActions(ShowActions showActions) throws Exception {
+        log.info("SHOW ACTIONS");
+        ActionMessage actionMessage = new ActionMessage(player.getLocationId());
+        Future<Object> actionsFuture = Patterns.ask(environmentAgent, actionMessage, timeout);
+        Action result = (Action) Await.result(actionsFuture, timeout.duration());
+        log.info("POSSIBLE ACTIONS: " + result);
     }
 
     private void onMove(Move move) throws Exception {
         log.info("MOVE " + move.getDirection());
-        log.info("before MOVE: " +
-                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
-        MoveMessage moveMessage = new MoveMessage(player.getLocation().getX(), move.getDirection());
+        log.info("before MOVE: position = "+player.getLocationId());
+        MoveMessage moveMessage = new MoveMessage(player.getLocationId(), move.getDirection());
         Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
-        MoveMessage moveResult = (MoveMessage) Await.result(moveFuture, timeout.duration());
-        int x = moveResult.getCurrentPosition();
-        int y = moveResult.getCurrentPosition();
-//        UpdateLocation updateLocation = new UpdateLocation(new Location(x, y));
-//        playerAction.tell(updateLocation, getSelf());
-        player.setLocation(new Location(x, y));
-        log.info("after UPDATE LOCATION: " +
-                "x="+player.getLocation().getX()+" y="+player.getLocation().getY());
+        Location moveResult = (Location) Await.result(moveFuture, timeout.duration());
+        player.setLocationId(moveResult.getId());
+        log.info("after MOVE: position = " + player.getLocationId());
     }
 
     private void onFight(Fight fight) throws Exception {
-        log.info("FIGHT with " + fight.getBeast());
+        log.info("FIGHT with beast");
         log.info("before FIGHT: lifePoints="+player.getLifePoints());
-        fightAgent.tell(new DifficultMessage(FightType.HARD), getSelf());
-        Future<Object> enemyFuture = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
-        Enemy result = (Enemy) Await.result(enemyFuture, timeout.duration());
-        System.out.println(result.getHealthPoints() + " " + result.getDamage());
-        Future<Object> fightFuture = Patterns.ask(fightAgent, new FightMessage(player, result), timeout);
-        FightMessage fightResultMesaage = (FightMessage) Await.result(fightFuture, timeout.duration());
-//        UpdateLifePoints updateLifePoints = new UpdateLifePoints(50);
-//        playerAction.tell(updateLifePoints, getSelf());
-        player.setLifePoints(fightResultMesaage.getPlayer().getLifePoints());
-        log.info("after FIGHT: lifePoints="+player.getLifePoints());
+        fightAgent.tell(new DifficultMessage(FightType.HARD), getSelf()); // TODO: 5/30/17 difficulty is hardcoded! - set up options at the beginning???
+        LocationMessage locationMessage = new LocationMessage(player.getLocationId());
+        Future<Object> locationFuture = Patterns.ask(environmentAgent, locationMessage, timeout);
+        Location locationResult = (Location) Await.result(locationFuture, timeout.duration());
+        Enemy enemy = locationResult.getEnemy();
+        log.info("enemy for the current location: " + enemy);
+
+        if (enemy != null) {
+            Future<Object> fightFuture = Patterns.ask(fightAgent, new FightMessage(player, enemy), timeout);
+
+            FightMessage fightResultMessage = (FightMessage) Await.result(fightFuture, timeout.duration());
+            player.setLifePoints(fightResultMessage.getPlayer().getLifePoints());
+            log.info("after FIGHT: lifePoints="+player.getLifePoints());
+        } else {
+            log.info("no enemy available!");
+        }
     }
 
     private void onActionResponseMessage(ActionResponseMessage actionResponseMessage) {
-        getSender().tell(new ActionResponseMessage("response"), getSelf());
+        getSender().tell(new ActionResponseMessage(), getSelf());
     }
 
 

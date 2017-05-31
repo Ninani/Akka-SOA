@@ -2,7 +2,6 @@ package pl.edu.agh.game.player.listener.interpreter;
 
 import pl.edu.agh.game.player.action.messages.ActionMsg;
 import pl.edu.agh.game.player.listener.interpreter.commands.*;
-import scala.io.StdIn;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +13,7 @@ public class CommandInterpreter {
     static {
         commandStorage.put(CommandType.QUIT, new Quit());
         commandStorage.put(CommandType.HELP, new Help());
+        commandStorage.put(CommandType.SHOW, new Show());
         commandStorage.put(CommandType.MOVE, new Move());
         commandStorage.put(CommandType.FIGHT, new Fight());
         commandStorage.put(CommandType.WRONG_COMMAND, new WrongCommand());

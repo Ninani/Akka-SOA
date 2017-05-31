@@ -10,10 +10,7 @@ import akka.routing.*;
 import akka.util.Timeout;
 import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.environment.services.MapCreateService;
-import pl.edu.agh.game.message.environment.ActionMessage;
-import pl.edu.agh.game.message.environment.CreateMapMessage;
-import pl.edu.agh.game.message.environment.DirectionsMessage;
-import pl.edu.agh.game.message.environment.MoveMessage;
+import pl.edu.agh.game.message.environment.*;
 import pl.edu.agh.game.message.enemy.NewMonsterMessage;
 import pl.edu.agh.game.model.enemies.Enemy;
 import pl.edu.agh.game.model.map.Action;
@@ -23,7 +20,6 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,7 +33,7 @@ public class EnvironmentAgent extends AbstractActor {
     private ActorRef mapCreateService;
 
     private Location[][] locations;
-    private int size = 10;
+    private static final int SIZE = 10;
 
     @Override
     public void preStart() throws Exception {
@@ -52,7 +48,7 @@ public class EnvironmentAgent extends AbstractActor {
 
                     log.info("EnvironmentAgent -- CreateMapMessage --> MapCreateService");
 
-                    Future<Object> future = Patterns.ask(mapCreateService, new CreateMapMessage(locations, size), timeout);
+                    Future<Object> future = Patterns.ask(mapCreateService, new CreateMapMessage(locations, SIZE), timeout);
                     locations = (Location[][]) Await.result(future, timeout.duration());
 
                     //init all enemies
@@ -80,31 +76,37 @@ public class EnvironmentAgent extends AbstractActor {
                     Location newLocation = getNewLocation(s.getCurrentPosition() ,s.getDirection());
                     getSender().tell(newLocation, getSelf());
                 })
+                .match(LocationMessage.class, s -> {
+                    log.info("EnvironmentAgent[" + getSelf() + "] -- Location> --> " + getSender());
+                    int id = s.getCurrentPosition();
+                    Location currentLocation = locations[id/SIZE][id%SIZE];
+                    getSender().tell(currentLocation, getSelf());
+                })
                 .matchAny(o -> log.info("received unknown message"))
                 .build();
     }
 
     private Action getAction(int location_id) {
-        return locations[location_id/size][location_id%size].getAction();
+        return locations[location_id/ SIZE][location_id% SIZE].getAction();
     }
 
     private List<Direction> getDirections(int location_id) {
 
-        int i = location_id/size;
-        int j = location_id%size;
+        int i = location_id/ SIZE;
+        int j = location_id% SIZE;
 
         List<Direction> directions = new LinkedList<>();
 
         if (i>0 && !locations[i-1][j].isBlank()) {
             directions.add(Direction.UP);
         }
-        if (i<size-1 && !locations[i+1][j].isBlank()) {
+        if (i< SIZE -1 && !locations[i+1][j].isBlank()) {
             directions.add(Direction.DOWN);
         }
         if (j>0 && !locations[i][j-1].isBlank()) {
             directions.add(Direction.LEFT);
         }
-        if (j<size-1 && !locations[i][j+1].isBlank()) {
+        if (j< SIZE -1 && !locations[i][j+1].isBlank()) {
             directions.add(Direction.RIGHT);
         }
 
@@ -114,8 +116,8 @@ public class EnvironmentAgent extends AbstractActor {
     private Location getNewLocation(int currentPosition, Direction direction) {
 
         Location location = null;
-        int i = currentPosition/size;
-        int j = currentPosition%size;
+        int i = currentPosition/ SIZE;
+        int j = currentPosition% SIZE;
 
         if (direction.equals(Direction.UP)) {
             location = locations[i-1][j];
@@ -132,18 +134,18 @@ public class EnvironmentAgent extends AbstractActor {
 
     private void initEnemies() throws Exception {
 
-        for(int i=0; i<locations.length; i++) {
-            for(int j=0; j<locations[i].length; j++) {
-                if (locations[i][j].getAction().equals(Action.ENEMY)) {
+        for (Location[] location : locations) {
+            for (Location aLocation : location) {
+                if (aLocation.getAction().equals(Action.ENEMY)) {
 
-                    if (locations[i][j].getEnemy() == null) {
+                    if (aLocation.getEnemy() == null) {
 
                         log.info("EnvironmentAgent -- NewMonsterMessage --> EnemyAgent");
 
                         Future<Object> future = Patterns.ask(enemyAgent, new NewMonsterMessage(), timeout);
                         Enemy result = (Enemy) Await.result(future, timeout.duration());
 
-                        locations[i][j].setEnemy(result);
+                        aLocation.setEnemy(result);
                     }
                 }
             }

@@ -2,9 +2,7 @@ package pl.edu.agh.game.message.environment;
 
 
 import akka.actor.ActorRef;
-import pl.edu.agh.game.enemy.EnemyAgent;
 import pl.edu.agh.game.model.map.Direction;
-import pl.edu.agh.game.player.action.messages.Move;
 
 public class MoveMessage {
 
