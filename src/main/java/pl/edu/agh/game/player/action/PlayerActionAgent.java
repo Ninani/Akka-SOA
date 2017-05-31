@@ -86,11 +86,19 @@ public class PlayerActionAgent extends AbstractActor{ // TODO: 5/30/17 send resp
     private void onMove(Move move) throws Exception {
         log.info("MOVE " + move.getDirection());
         log.info("before MOVE: position = "+player.getLocationId());
-        MoveMessage moveMessage = new MoveMessage(player.getLocationId(), move.getDirection());
-        Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
-        Location moveResult = (Location) Await.result(moveFuture, timeout.duration());
-        player.setLocationId(moveResult.getId());
-        log.info("after MOVE: position = " + player.getLocationId());
+
+        DirectionsMessage directionsMessage = new DirectionsMessage(player.getLocationId());
+        Future<Object> directionsFuture = Patterns.ask(environmentAgent, directionsMessage, timeout);
+        List<Direction> possibleDirections = (List<Direction>) Await.result(directionsFuture, timeout.duration());
+        if (possibleDirections.contains(move.getDirection())) {
+            MoveMessage moveMessage = new MoveMessage(player.getLocationId(), move.getDirection());
+            Future<Object> moveFuture = Patterns.ask(environmentAgent, moveMessage, timeout);
+            Location moveResult = (Location) Await.result(moveFuture, timeout.duration());
+            player.setLocationId(moveResult.getId());
+            log.info("after MOVE: position = " + player.getLocationId());
+        } else {
+            log.info("move in a given direction is impossible");
+        }
     }
 
     private void onFight(Fight fight) throws Exception {
